@@ -59,3 +59,22 @@ def _calculate_age(birth_date, match_date):
 
     return (match - birth).days / 365.25
 
+
+def _process_female_matches(raw_data, player_birth_date):
+    """Clean female player matches and calculate age differences."""
+    matches = raw_data[[0, 4, 11, 16]].copy()
+    matches.columns = ["match_date", "result", "opponent", "opponent_birth"]
+
+    matches["player_age"] = matches["match_date"].apply(
+        lambda date: _calculate_age(player_birth_date, date)
+    )
+    matches["opponent_age"] = matches.apply(
+        lambda row: _calculate_age(row["opponent_birth"], row["match_date"])
+        if isinstance(row["opponent_birth"], str)
+        and len(row["opponent_birth"]) == 8
+        else float("nan"),
+        axis=1,
+    )
+    matches["age_difference"] = matches["player_age"] - matches["opponent_age"]
+
+    return matches.dropna(subset=["age_difference"])

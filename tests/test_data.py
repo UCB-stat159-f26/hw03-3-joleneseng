@@ -1,8 +1,11 @@
+import pandas as pd
 import pytest
+
 from tennis_career.data import (
     _format_player_name,
     _parse_career_js,
     _calculate_age,
+    _process_female_matches,
 )
 
 
@@ -70,3 +73,21 @@ def test_parse_invalid_career_js():
 def test_calculate_age(birth_date, match_date, expected_age):
     result = _calculate_age(birth_date, match_date)
     assert result == pytest.approx(expected_age, abs=0.01)
+
+
+def test_process_female_matches():
+    row = [""] * 17
+    row[0] = "19951030"
+    row[4] = "L"
+    row[11] = "Anne Miller"
+    row[16] = "19770119"
+
+    raw_data = pd.DataFrame([row])
+    result = _process_female_matches(raw_data, "19810926")
+
+    assert len(result) == 1
+    assert result.iloc[0]["result"] == "L"
+    assert result.iloc[0]["opponent"] == "Anne Miller"
+    assert result.iloc[0]["player_age"] == pytest.approx(14.0917, abs=0.01)
+    assert result.iloc[0]["opponent_age"] == pytest.approx(18.7762, abs=0.01)
+    assert result.iloc[0]["age_difference"] == pytest.approx(-4.6845, abs=0.01)

@@ -115,3 +115,24 @@ def _get_player_birth_date(player_name, is_female):
 
     return match.group(1)
 
+
+def _is_female_data(raw_data):
+    """Identify whether career data uses the women's format."""
+    values = raw_data[16].dropna().astype(str)
+    birth_dates = values.str.fullmatch(r"\d{8}")
+    return bool(birth_dates.any())
+
+
+def get_player_matches(player_name):
+    """Retrieve and clean a tennis player's career match data."""
+    js_text = _download_career_js(player_name)
+    raw_data = _parse_career_js(js_text)
+    is_female = _is_female_data(raw_data)
+    birth_date = _get_player_birth_date(player_name, is_female)
+
+    if is_female:
+        matches = _process_female_matches(raw_data, birth_date)
+    else:
+        matches = _process_male_matches(raw_data, birth_date)
+
+    return matches.reset_index(drop=True)

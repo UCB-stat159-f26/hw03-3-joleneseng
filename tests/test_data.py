@@ -10,6 +10,8 @@ from tennis_career.data import (
     _process_female_matches,
     _process_male_matches,
     _get_player_birth_date,
+    _is_female_data,
+    get_player_matches,
 )
 
 @pytest.mark.parametrize(
@@ -141,3 +143,36 @@ def test_get_player_birth_date_missing():
     with patch("tennis_career.data.requests.get", return_value=mock_response):
         with pytest.raises(ValueError, match="Birth date not found"):
             _get_player_birth_date("Unknown Player", False)
+
+
+
+@pytest.mark.parametrize(
+    "opponent_ages, expected",
+    [
+        (["19770119", "19800615"], True),
+        (["22.264202601", "25.5"], False),
+        (["", None], False),
+    ],
+)
+def test_is_female_data(opponent_ages, expected):
+    raw_data = pd.DataFrame({16: opponent_ages})
+    assert _is_female_data(raw_data) == expected
+
+
+@pytest.mark.parametrize("is_female", [True, False])
+def test_get_player_matches(is_female):
+    raw_data = pd.DataFrame([["sample"]])
+    expected = pd.DataFrame({"age_difference": [-4.5]})
+
+    with patch("tennis_career.data._download_career_js", return_value="mock_js"):
+        with patch("tennis_career.data._parse_career_js", return_value=raw_data):
+            with patch("tennis_career.data._is_female_data", return_value=is_female):
+                with patch("tennis_career.data._get_player_birth_date", return_value="19810926"):
+                    processor = (
+                        "_process_female_matches"
+                        if is_female else "_process_male_matches"
+                    )
+                    with patch(f"tennis_career.data.{processor}", return_value=expected):
+                        result = get_player_matches("Test Player")
+
+    assert result.equals(expected)

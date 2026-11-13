@@ -94,3 +94,24 @@ def _process_male_matches(raw_data, player_birth_date):
     matches["age_difference"] = matches["player_age"] - matches["opponent_age"]
 
     return matches.dropna(subset=["age_difference"])
+
+
+
+def _get_player_birth_date(player_name, is_female):
+    """Retrieve a player's birth date from Tennis Abstract."""
+    formatted_name = _format_player_name(player_name)
+    profile_type = "wplayer" if is_female else "player"
+    url = f"https://www.tennisabstract.com/cgi-bin/{profile_type}.cgi?p={formatted_name}"
+
+    try:
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()
+    except requests.RequestException as error:
+        raise ValueError(f"Could not retrieve profile for '{player_name}'.") from error
+
+    match = re.search(r"var\s+dob\s*=\s*(\d{8})\s*;", response.text)
+    if not match:
+        raise ValueError(f"Birth date not found for '{player_name}'.")
+
+    return match.group(1)
+

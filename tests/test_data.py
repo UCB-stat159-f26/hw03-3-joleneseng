@@ -1,3 +1,5 @@
+from unittest.mock import patch, Mock
+
 import pandas as pd
 import pytest
 
@@ -7,6 +9,7 @@ from tennis_career.data import (
     _calculate_age,
     _process_female_matches,
     _process_male_matches,
+    _get_player_birth_date,
 )
 
 @pytest.mark.parametrize(
@@ -109,3 +112,32 @@ def test_process_male_matches():
     assert result.iloc[0]["player_age"] == pytest.approx(15.2717, abs=0.01)
     assert result.iloc[0]["opponent_age"] == pytest.approx(22.2642, abs=0.01)
     assert result.iloc[0]["age_difference"] == pytest.approx(-6.9925, abs=0.01)
+
+
+@pytest.mark.parametrize(
+    "player_name, is_female, birth_date, profile_type",
+    [
+        ("Serena Williams", True, "19810926", "wplayer"),
+        ("Rafael Nadal", False, "19860603", "player"),
+    ],
+)
+def test_get_player_birth_date(
+    player_name, is_female, birth_date, profile_type
+):
+    mock_response = Mock()
+    mock_response.text = f"var dob = {birth_date};"
+
+    with patch("tennis_career.data.requests.get", return_value=mock_response) as mock_get:
+        result = _get_player_birth_date(player_name, is_female)
+
+    assert result == birth_date
+    assert f"/{profile_type}.cgi" in mock_get.call_args.args[0]
+
+
+def test_get_player_birth_date_missing():
+    mock_response = Mock()
+    mock_response.text = "No birth date available"
+
+    with patch("tennis_career.data.requests.get", return_value=mock_response):
+        with pytest.raises(ValueError, match="Birth date not found"):
+            _get_player_birth_date("Unknown Player", False)

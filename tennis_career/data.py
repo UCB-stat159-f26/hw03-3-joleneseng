@@ -4,6 +4,8 @@ import re
 import pandas as pd
 import requests
 
+from datetime import datetime
+
 def _format_player_name(player_name):
     """Convert a player's name to Tennis Abstract's filename format."""
     if not isinstance(player_name, str) or not player_name.strip():
@@ -48,3 +50,12 @@ def _parse_career_js(js_text):
         raise ValueError("Career match data is empty or invalid.")
 
     return pd.DataFrame(records)
+
+
+def _calculate_age(birth_date, match_date):
+    """Calculate age in years at the time of a match."""
+    birth = datetime.strptime(birth_date, "%Y%m%d")
+    match = datetime.strptime(match_date, "%Y%m%d")
+
+    return (match - birth).days / 365.25
+

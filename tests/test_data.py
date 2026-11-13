@@ -1,5 +1,9 @@
 import pytest
-from tennis_career.data import _format_player_name, _parse_career_js
+from tennis_career.data import (
+    _format_player_name,
+    _parse_career_js,
+    _calculate_age,
+)
 
 
 @pytest.mark.parametrize(
@@ -52,3 +56,17 @@ def test_parse_male_career_js():
 def test_parse_invalid_career_js():
     with pytest.raises(ValueError, match="Could not find"):
         _parse_career_js("This is not valid career data.")
+
+
+
+@pytest.mark.parametrize(
+    "birth_date, match_date, expected_age",
+    [
+        ("19810926", "19951030", 14.0917),
+        ("19860603", "20010910", 15.2717),
+        ("20000101", "20200101", 20.0),
+    ],
+)
+def test_calculate_age(birth_date, match_date, expected_age):
+    result = _calculate_age(birth_date, match_date)
+    assert result == pytest.approx(expected_age, abs=0.01)

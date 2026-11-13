@@ -86,10 +86,12 @@ README.md
 
 ## Reflections
 
-This assignment helped me understand how to transform a standalone data analysis project into a reusable Python package. One of the main challenges was handling the differences between men's and women's Tennis Abstract data, since opponent age information is stored in different formats.
+For this homework, I built on my previous assignment where I recreated a visualization of Serena Williams's tennis career. This time, instead of just making a graph for one player, I had to turn the code into a Python package that could be used for different tennis players. I found this more challenging because I had to think about how to make my code reusable and understandable for someone else.
 
-I addressed this by separating the data retrieval, parsing, cleaning, and visualization steps into smaller helper functions. This made the code easier to test and helped me stay within the assignment's function-length requirements.
+One of the biggest challenges was figuring out how to work with the Tennis Abstract data. I realized that the men's and women's datasets stored opponent age information differently, so I couldn't process them in exactly the same way. I ended up writing separate helper functions for each format and figuring out how to retrieve player birth dates from their profiles. It took some trial and error, but breaking the process into smaller functions made it easier to identify problems and fix them.
 
-I also learned how to use mocked responses in automated tests so that the package can be tested without relying on an external website. Compared with my previous replication project, I focused more on modular code, reproducibility, and organizing Git commits around specific changes.
+I also learned a lot more about testing. In my previous assignments, I usually checked whether my code worked by running it and looking at the results. For this homework, I learned how to use mock data to test functions without having to access the website every time. I also got more practice working with `pyproject.toml`, organizing files into a package, and making sure the package could actually be installed from GitHub.
 
-One limitation is that the package depends on Tennis Abstract's website structure and the availability of player birth dates. If the website changes its data format, some retrieval functions may need to be updated.
+Another thing I tried to improve from my previous homework was my Git workflow. I made an effort to commit smaller changes separately instead of putting everything into one large commit. This made it easier to keep track of what I was adding and changing throughout the assignment.
+
+I think this homework helped me better understand the difference between writing code that works for one project and writing code that other people can reuse. One limitation of my package is that it depends on how Tennis Abstract organizes its data, so changes to the website could affect whether the functions work correctly.

@@ -2,6 +2,7 @@ from unittest.mock import patch, Mock
 
 import pandas as pd
 import pytest
+import requests
 
 from tennis_career.data import (
     _format_player_name,
@@ -176,3 +177,12 @@ def test_get_player_matches(is_female):
                         result = get_player_matches("Test Player")
 
     assert result.equals(expected)
+
+
+def test_get_player_matches_invalid_name():
+    """Check that an invalid player produces a meaningful error."""
+    with patch("tennis_career.data.requests.get") as mock_get:
+        mock_get.side_effect = requests.RequestException("Not found")
+
+        with pytest.raises(ValueError, match="Could not retrieve career data"):
+            get_player_matches("Not A Real Tennis Player")

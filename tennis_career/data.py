@@ -78,3 +78,19 @@ def _process_female_matches(raw_data, player_birth_date):
     matches["age_difference"] = matches["player_age"] - matches["opponent_age"]
 
     return matches.dropna(subset=["age_difference"])
+
+
+def _process_male_matches(raw_data, player_birth_date):
+    """Clean male player matches and calculate age differences."""
+    matches = raw_data[[0, 4, 11, 16]].copy()
+    matches.columns = ["match_date", "result", "opponent", "opponent_age"]
+
+    matches["player_age"] = matches["match_date"].apply(
+        lambda date: _calculate_age(player_birth_date, date)
+    )
+    matches["opponent_age"] = pd.to_numeric(
+        matches["opponent_age"], errors="coerce"
+    )
+    matches["age_difference"] = matches["player_age"] - matches["opponent_age"]
+
+    return matches.dropna(subset=["age_difference"])

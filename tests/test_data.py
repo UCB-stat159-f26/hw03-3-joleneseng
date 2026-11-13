@@ -6,8 +6,8 @@ from tennis_career.data import (
     _parse_career_js,
     _calculate_age,
     _process_female_matches,
+    _process_male_matches,
 )
-
 
 @pytest.mark.parametrize(
     "player_name, expected",
@@ -91,3 +91,21 @@ def test_process_female_matches():
     assert result.iloc[0]["player_age"] == pytest.approx(14.0917, abs=0.01)
     assert result.iloc[0]["opponent_age"] == pytest.approx(18.7762, abs=0.01)
     assert result.iloc[0]["age_difference"] == pytest.approx(-4.6845, abs=0.01)
+
+
+def test_process_male_matches():
+    row = [""] * 17
+    row[0] = "20010910"
+    row[4] = "L"
+    row[11] = "Guillermo Platel"
+    row[16] = "22.264202601"
+
+    raw_data = pd.DataFrame([row])
+    result = _process_male_matches(raw_data, "19860603")
+
+    assert len(result) == 1
+    assert result.iloc[0]["result"] == "L"
+    assert result.iloc[0]["opponent"] == "Guillermo Platel"
+    assert result.iloc[0]["player_age"] == pytest.approx(15.2717, abs=0.01)
+    assert result.iloc[0]["opponent_age"] == pytest.approx(22.2642, abs=0.01)
+    assert result.iloc[0]["age_difference"] == pytest.approx(-6.9925, abs=0.01)
